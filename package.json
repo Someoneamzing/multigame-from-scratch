@@ -1,0 +1,30 @@
+{
+  "name": "multigame-from-scratch",
+  "version": "1.0.0",
+  "description": "A Node JS based multiplayer game.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Someoneamzing/multigame-from-scratch.git"
+  },
+  "keywords": [
+    "game",
+    "html5",
+    "nodejs",
+    "lokijs"
+  ],
+  "author": "Someoneamzing",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Someoneamzing/multigame-from-scratch/issues"
+  },
+  "homepage": "https://github.com/Someoneamzing/multigame-from-scratch#readme",
+  "dependencies": {
+    "jquery": "^3.3.1",
+    "lokijs": "^1.5.3",
+    "uuid": "^3.2.1"
+  }
+}
