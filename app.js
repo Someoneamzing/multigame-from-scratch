@@ -67,6 +67,10 @@ io.on('connection',(socket)=>{
     } else {
       socket.emit('sign-up-res', {success: false, err: 'dupe-acc'});
     }
+  });
+
+  socket.on('loaded'()=>{
+    ;
   })
 })
 
