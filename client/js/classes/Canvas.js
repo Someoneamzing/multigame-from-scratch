@@ -18,6 +18,8 @@ export class client {
   resize({w, h}){
     this.ctx.canvas.width = w;
     this.ctx.canvas.height = h;
+    this.colour('red');
+    this.rect({x: 0, y: 0, w: this.width, h: this.height},true);
   }
 
   rect({x, y, w, h}, outline){
