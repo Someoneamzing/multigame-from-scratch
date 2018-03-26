@@ -5,6 +5,8 @@ const CONFIG = require('./config.js');
 const express = require('express');
 const Socket = require('socket.io');
 const httpModule = require('http');
+import * as ConnectionProxy from './client/js/classes/Connection.js';
+const {client: Connection} = ConnectionProxy;
 
 const app = express();
 const http = httpModule.Server(app);
@@ -48,6 +50,7 @@ const db = new loki('data.db',{autosave: true, autoload: true, autoloadCallback:
 
 io.on('connection',(socket)=>{
   console.log('Socket Connection: ' + socket);
+  console.log(io.sockets.connected);
   socket.on('sign-in',(creds)=>{
     const res = accounts.count(creds);
     if (res == 1) {
@@ -69,10 +72,11 @@ io.on('connection',(socket)=>{
     }
   });
 
-  socket.on('loaded'()=>{
+  socket.on('loaded',()=>{
     ;
   })
 })
+
 
 //______________________________________________________________________________
 

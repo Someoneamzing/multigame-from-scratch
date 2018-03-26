@@ -1,5 +1,7 @@
 console.log('Connected to server at ' + location.hostname + ' on port ' + location.port + '.');
 
+import * as ConnectionProxy from './classes/Connection.js';
+const {client: Connection} = ConnectionProxy;
 import * as SpriteProxy from './classes/Sprite.js';
 const {client: Sprite} = SpriteProxy;
 import * as SpriteListProxy from './classes/SpriteList.js';
