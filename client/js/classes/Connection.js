@@ -2,9 +2,16 @@ class client {
   constructor(socket){
     this.socket = socket;
     this.track = {};
+    this.playerID = '';
     this.socket.on('connection-update', this.update);
     this.socket.on('connection-new', this.createNew);
     this.socket.on('connection-remove', this.remove);
+    this.socket.on('connection-init', this.init);
+  }
+
+  init(initInfo){
+    PlayerID = this.playerID = initInfo.playerId;
+    this.createNew(initInfo.initPkt);
   }
 
   addTrack(className, classID){
@@ -52,13 +59,16 @@ class server {
     this.io = io;
     this.track = {};
     this.initPkt = {};
+    this.newPkt = {};
     this.remove = {};
     this.updates = {};
     this.room = 'connection' + Math.floor(Math.random() * 1000)/1000;
-    this.dirty = [];
+    this.dirty = {};
+    this.add = {};
     this.io.on('connection',(socket)=>{
       socket.on('connection-begin',()=>{
         socket.join(this.room);
+
       })
 
       socket.on('connection-end',()=>{
@@ -70,6 +80,17 @@ class server {
       // })
       //socket.emit('connection-track-res', Object.keys(this.track)
     })
+  }
+
+  initSocket(socket, id){
+    for(let ClassID of this.track){
+      let list = this.initPkt[ClassID.trackName];
+      list.length = 0;
+      for(let obj of ClassID.list){
+        list.push(obj.getInitPkt());
+      }
+    }
+    socket.emit('connection-init', {playerId: id, initPkt: this.initPkt});
   }
 
   addTrack(className, classID){
@@ -91,14 +112,15 @@ class server {
   }
 
   sendInit(){
-    for(let ClassID of this.track){
-      let list = this.initPkt[ClassID.trackName];
+    for (let listName in this.newPkt){
+      let list = this.newPkt[listName];
       list.length = 0;
-      for(let obj of ClassID.list){
-        list.push(obj.getInitPkt());
+      for (let obj of this.add[listName]){
+        list.push(obj.getInitPack());
       }
+      this.add[listName].length = 0;
     }
-    this.io.to(this.room).emit('connection-init', this.initPkt);
+    this.io.to(this.room).emit('connection-new', this.newPkt);
   }
 
   sendRemove(){

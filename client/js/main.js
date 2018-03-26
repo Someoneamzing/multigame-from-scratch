@@ -10,6 +10,8 @@ import * as LoaderListProxy from './classes/LoaderList.js';
 const {client: LoaderList} = LoaderListProxy;
 import * as CanvasProxy from './classes/Canvas.js';
 const {client: Canvas} = CanvasProxy;
+import * as EntityProxy from './client/js/classes/Entity.js';
+const {client: Entity} = EntityProxy;
 
 $(()=>{
   const loginTab = $('#page-nav-assist a[href="#login-page"]');
@@ -17,6 +19,9 @@ $(()=>{
   const gameTab = $('#page-nav-assist a[href="#game-page"]');
   const ctx = document.getElementById('gc').getContext('2d');
   const canvas = new Canvas(ctx);
+
+  let PlayerID;
+
   canvas.resize({w: window.innerWidth, h: window.innerHeight});
 
   $(window).resize((e)=>{
@@ -31,6 +36,9 @@ $(()=>{
   Sprites.add(new Sprite({ctx, src: '/img/test2.png'}));
 
   const Loader = new LoaderList([Sprites]);
+
+  const connection = new Connection(socket);
+  connection.addTrack('Entity', Entity);
 //______________________________________________________________________________
 
 
@@ -132,7 +140,7 @@ $(()=>{
     Loader.load($('#load-bar'),()=>{
       console.log('Finished loading assets.', Loader.loaders);
       $('#game-page').append($(Loader.loaders[0].list[1]));
-      socket.emit('loaded');
+      connection.begin();
       gameTab.tab('show');
     });
   }

@@ -5,8 +5,13 @@ const CONFIG = require('./config.js');
 const express = require('express');
 const Socket = require('socket.io');
 const httpModule = require('http');
+
 import * as ConnectionProxy from './client/js/classes/Connection.js';
-const {client: Connection} = ConnectionProxy;
+const {server: Connection} = ConnectionProxy;
+import * as EntityProxy from './client/js/classes/Entity.js';
+const {server: Entity} = EntityProxy;
+
+//Fix node imports with the --experimental-modules flag.
 
 const app = express();
 const http = httpModule.Server(app);
@@ -44,6 +49,11 @@ function initData(){
 }
 
 const db = new loki('data.db',{autosave: true, autoload: true, autoloadCallback: initData});
+//______________________________________________________________________________
+
+//---Register Connection Tracking-----------------------------------------------
+let connection = new Conection(io);
+connection.addTrack('Entity', Entity);
 //______________________________________________________________________________
 
 //---Handle Connections---------------------------------------------------------
@@ -84,4 +94,13 @@ io.on('connection',(socket)=>{
 http.listen(CONFIG.port, ()=>{
   console.log('Server Started on port ' + CONFIG.port + '.');
 })
+//______________________________________________________________________________
+
+//---Start Main Loop------------------------------------------------------------
+let MAIN_LOOP = setInterval(()=>{
+  Entity.update();
+
+  connection.sendAll();
+},1000/30)
+
 //______________________________________________________________________________

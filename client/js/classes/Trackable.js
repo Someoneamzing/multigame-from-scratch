@@ -52,4 +52,10 @@ export class server {
   static trackName = '';
   static list = {};
 
+  static update(){
+    for (let obj of server.list){
+      obj.update();
+    }
+  }
+
 }
