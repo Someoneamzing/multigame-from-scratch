@@ -1,4 +1,4 @@
-class client {
+let client = class {
   constructor(loaders){
     this.loaders = loaders;
   }

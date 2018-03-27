@@ -1,6 +1,6 @@
 const TrackableProxy = require('./Trackable.js');
 
-class client extends TrackableProxy.client {
+let client = class extends TrackableProxy.client {
   constructor(params) {
     super(params);
     const {x = 0, y = 0, world = 0, w = 32, h = 32} = params;
@@ -19,7 +19,7 @@ class client extends TrackableProxy.client {
   }
 }
 
-class server extends TrackableProxy.server {
+let server = class extends TrackableProxy.server {
   constructor(params){
     super(params);
     const {x = 0, y = 0, world = 0, w = 32, h = 32, solid = false} = params;
@@ -40,7 +40,7 @@ class server extends TrackableProxy.server {
   }
 
   collision(x,y,onlySolid){
-    for (let objName of server.list){
+    for (let objName in server.list){
       let obj = server.list[objName];
       if (onlySolid!=obj.solid) continue;
       if (this.dist(obj,x,y)>((this.w/2)**2+(this.h/2)**2)) continue;
@@ -52,8 +52,8 @@ class server extends TrackableProxy.server {
   }
 
   update(){
-    if(collision(this.x + this.hsp, this.y, true)){
-      while (!collision(this.x + Math.sign(this.hsp), this.y, true)){
+    if(this.collision(this.x + this.hsp, this.y, true)){
+      while (!this.collision(this.x + Math.sign(this.hsp), this.y, true)){
         this.x += Math.sign(this.hsp);
       }
       this.hsp = 0;
@@ -61,8 +61,8 @@ class server extends TrackableProxy.server {
 
     this.x += this.hsp;
 
-    if(collision(this.x, this.y + this.vsp, true)){
-      while (!collision(this.x, this.y + Math.sign(this.vsp), true)){
+    if(this.collision(this.x, this.y + this.vsp, true)){
+      while (!this.collision(this.x, this.y + Math.sign(this.vsp), true)){
         this.y += Math.sign(this.vsp);
       }
       this.vsp = 0;

@@ -1,4 +1,4 @@
-class client {
+let client = class {
   constructor(ctx, {x, y, zoom}){
     this.ctx = ctx;
     this.x = x;

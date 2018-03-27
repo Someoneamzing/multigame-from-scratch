@@ -1,4 +1,4 @@
-class client {
+let client = class {
   constructor(socket){
     this.socket = socket;
     this.track = {};
@@ -7,6 +7,15 @@ class client {
     this.socket.on('connection-new', this.createNew);
     this.socket.on('connection-remove', this.remove);
     this.socket.on('connection-init', this.init);
+
+    this.init = this.init.bind(this);
+    this.addTrack = this.addTrack.bind(this);
+    this.update = this.update.bind(this);
+    this.createNew = this.createNew.bind(this);
+    this.remove = this.remove.bind(this);
+    this.begin = this.begin.bind(this);
+    this.end = this.end.bind(this);
+
   }
 
   init(initInfo){
@@ -54,7 +63,7 @@ class client {
   }
 }
 
-class server {
+let server = class {
   constructor(io){
     this.io = io;
     this.track = {};
@@ -80,13 +89,20 @@ class server {
       // })
       //socket.emit('connection-track-res', Object.keys(this.track)
     })
+
+    this.initSocket = this.initSocket.bind(this);
+    this.addTrack = this.addTrack.bind(this);
+    this.sendUpdate = this.sendUpdate.bind(this);
+    this.sendInit = this.sendInit.bind(this);
+    this.sendRemove = this.sendRemove.bind(this);
+    this.sendAll = this.sendAll.bind(this);
   }
 
   initSocket(socket, id){
     for(let ClassID of this.track){
       let list = this.initPkt[ClassID.trackName];
       list.length = 0;
-      for (let objName of ClassID.list){
+      for (let objName in ClassID.list){
         let obj = ClassID.list[objName];
         list.push(obj.getInitPkt());
       }
@@ -95,9 +111,9 @@ class server {
   }
 
   addTrack(className, classID){
-    this.track[className] = classID;
-    classID.trackList = this;
-    classID.trackName = className;
+    this.track[className] = classID.class;
+    classID.class.trackList = this;
+    classID.class.trackName = className;
   }
 
   sendUpdate(){
@@ -126,7 +142,7 @@ class server {
 
   sendRemove(){
     this.io.to(this.room).emit('connection-remove', this.remove);
-    for (let listName of this.remove){
+    for (let listName in this.remove){
       let list = this.remove[listName];
       list.length = 0;
     }

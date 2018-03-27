@@ -53,7 +53,7 @@ const db = new loki('data.db',{autosave: true, autoload: true, autoloadCallback:
 
 //---Register Connection Tracking-----------------------------------------------
 let connection = new Connection(io);
-connection.addTrack('Entity', Entity);
+connection.addTrack('Entity', {class: Entity});
 //______________________________________________________________________________
 
 //---Handle Connections---------------------------------------------------------
@@ -97,6 +97,8 @@ http.listen(CONFIG.port, ()=>{
 //______________________________________________________________________________
 
 //---Start Main Loop------------------------------------------------------------
+let checker = new Entity({});
+
 let MAIN_LOOP = setInterval(()=>{
   Entity.update();
 

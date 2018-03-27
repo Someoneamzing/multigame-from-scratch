@@ -1,5 +1,5 @@
 
-class client extends Image {
+let client = class extends Image {
   constructor({ctx, src, name = src.match(/([\w-]+)(?=\.(?:png|jpg|jpeg|mpeg|gif))/)[0], w = 32, h = 32, frames = 1, speed = 0}){
     super();
     this.ctx = ctx;

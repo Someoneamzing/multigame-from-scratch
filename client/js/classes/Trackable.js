@@ -3,11 +3,13 @@ if(typeof module !== 'undefined' && this.module !== module){
   uuid = require('uuid/v4');
 }
 
-class client {
+let client = class {
   constructor(initPkt){
     this.id = initPkt.id;
 
     client.list[this.id] = this;
+
+    this.update= this.update.bind(this);
   }
 
   update(updatePkt){
@@ -21,19 +23,26 @@ class client {
 }
 
 client.trackName = '';
+client.trackList = {};
 client.list = {};
 
-class server {
+let server = class {
   constructor(params){
     this.id = this.id = typeof params.id != "undefined" ? params.id : uuid();
     this.dirty = false;
 
 
     server.list[this.id] = this;
+
+    this.markDirty= this.markDirty.bind(this);
+    this.remove= this.remove.bind(this);
+    this.getUpdatePkt= this.getUpdatePkt.bind(this);
+    this.getInitPkt= this.getInitPkt.bind(this);
   }
 
   markDirty(){
     if (this.dirty) return;
+    console.log(server);
     server.trackList.dirty[server.trackName].push(this);
     this.dirty = true;
   }
@@ -61,6 +70,7 @@ class server {
 }
 
 server.trackName = '';
+server.trackList = {};
 server.list = {};
 
 

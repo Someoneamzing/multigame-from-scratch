@@ -1,6 +1,6 @@
 const CameraProxy = require('./Camera.js');
 
-class client {
+let client = class {
   constructor(ctx, camera = new CameraProxy.client(ctx, {x: 0, y: 0, zoom: 1})){
     this.ctx = ctx;
     this.canvas = $(this.ctx.canvas);

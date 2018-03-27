@@ -1,4 +1,4 @@
-class client {
+let client = class {
   constructor(){
     this.list = [];
     this.total = 0;
