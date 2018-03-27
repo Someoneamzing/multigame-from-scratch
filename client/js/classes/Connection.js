@@ -86,7 +86,8 @@ class server {
     for(let ClassID of this.track){
       let list = this.initPkt[ClassID.trackName];
       list.length = 0;
-      for(let obj of ClassID.list){
+      for (let objName of ClassID.list){
+        let obj = ClassID.list[objName];
         list.push(obj.getInitPkt());
       }
     }
@@ -125,7 +126,8 @@ class server {
 
   sendRemove(){
     this.io.to(this.room).emit('connection-remove', this.remove);
-    for (let list of this.remove){
+    for (let listName of this.remove){
+      let list = this.remove[listName];
       list.length = 0;
     }
   }

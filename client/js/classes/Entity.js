@@ -40,7 +40,8 @@ class server extends TrackableProxy.server {
   }
 
   collision(x,y,onlySolid){
-    for (let obj of server.list){
+    for (let objName of server.list){
+      let obj = server.list[objName];
       if (onlySolid!=obj.solid) continue;
       if (this.dist(obj,x,y)>((this.w/2)**2+(this.h/2)**2)) continue;
       if (x - this.w/2 > obj.x + obj.w/2 || x + this.w/2 < obj.x - obj.w/2) continue;

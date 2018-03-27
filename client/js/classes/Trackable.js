@@ -52,7 +52,8 @@ class server {
   }
 
   static update(){
-    for (let obj of server.list){
+    for (let objId in server.list){
+      let obj = server.list[objId];
       obj.update();
     }
   }
