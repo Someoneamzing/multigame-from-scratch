@@ -1,4 +1,4 @@
-export class client {
+class client {
   constructor(){
     this.list = [];
     this.total = 0;
@@ -31,3 +31,5 @@ export class client {
     return this.list[this.list.findIndex((sp)=>{return sp.name == name})];
   }
 }
+
+module.exports = {client};

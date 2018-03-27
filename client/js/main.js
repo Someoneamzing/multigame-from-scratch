@@ -1,16 +1,16 @@
 console.log('Connected to server at ' + location.hostname + ' on port ' + location.port + '.');
 
-import * as ConnectionProxy from './classes/Connection.js';
+const ConnectionProxy = require('./classes/Connection.js');
 const {client: Connection} = ConnectionProxy;
-import * as SpriteProxy from './classes/Sprite.js';
+const SpriteProxy = require('./classes/Sprite.js');
 const {client: Sprite} = SpriteProxy;
-import * as SpriteListProxy from './classes/SpriteList.js';
+const SpriteListProxy = require('./classes/SpriteList.js');
 const {client: SpriteList} = SpriteListProxy;
-import * as LoaderListProxy from './classes/LoaderList.js';
+const LoaderListProxy = require('./classes/LoaderList.js');
 const {client: LoaderList} = LoaderListProxy;
-import * as CanvasProxy from './classes/Canvas.js';
+const CanvasProxy = require('./classes/Canvas.js');
 const {client: Canvas} = CanvasProxy;
-import * as EntityProxy from './client/js/classes/Entity.js';
+const EntityProxy = require('./client/js/classes/Entity.js');
 const {client: Entity} = EntityProxy;
 
 $(()=>{

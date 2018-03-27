@@ -137,6 +137,6 @@ class server {
   }
 
 
-
-
 }
+
+module.exports = {client, server};

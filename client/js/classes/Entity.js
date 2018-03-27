@@ -1,6 +1,6 @@
-import * as TrackableProxy from './Trackable.js';
+const TrackableProxy = require('./Trackable.js');
 
-export class client extends TrackableProxy.client {
+class client extends TrackableProxy.client {
   constructor(params) {
     super(params);
     const {x = 0, y = 0, world = 0, w = 32, h = 32} = params;
@@ -19,7 +19,7 @@ export class client extends TrackableProxy.client {
   }
 }
 
-export class server extends TrackableProxy.server {
+class server extends TrackableProxy.server {
   constructor(params){
     super(params);
     const {x = 0, y = 0, world = 0, w = 32, h = 32, solid = false} = params;
@@ -77,3 +77,4 @@ export class server extends TrackableProxy.server {
     delete server.list[this.id];
   }
 }
+module.exports = {client, server};

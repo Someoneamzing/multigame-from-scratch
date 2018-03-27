@@ -1,6 +1,6 @@
-import * as CameraProxy from './Camera.js';
+const CameraProxy = require('./Camera.js');
 
-export class client {
+class client {
   constructor(ctx, camera = new CameraProxy.client(ctx, {x: 0, y: 0, zoom: 1})){
     this.ctx = ctx;
     this.canvas = $(this.ctx.canvas);
@@ -35,3 +35,5 @@ export class client {
     this.ctx.strokeStyle = colour;
   }
 }
+
+module.exports = {client};

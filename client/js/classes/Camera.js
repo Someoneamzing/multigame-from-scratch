@@ -1,4 +1,4 @@
-export class client {
+class client {
   constructor(ctx, {x, y, zoom}){
     this.ctx = ctx;
     this.x = x;
@@ -6,3 +6,5 @@ export class client {
     this.zoom = zoom;
   }
 }
+
+module.exports = {client};

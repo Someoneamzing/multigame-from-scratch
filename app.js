@@ -6,9 +6,9 @@ const express = require('express');
 const Socket = require('socket.io');
 const httpModule = require('http');
 
-import * as ConnectionProxy from './client/js/classes/Connection.js';
+const ConnectionProxy = require('./client/js/classes/Connection.js');
 const {server: Connection} = ConnectionProxy;
-import * as EntityProxy from './client/js/classes/Entity.js';
+const EntityProxy = require('./client/js/classes/Entity.js');
 const {server: Entity} = EntityProxy;
 
 //Fix node imports with the --experimental-modules flag.
@@ -52,7 +52,7 @@ const db = new loki('data.db',{autosave: true, autoload: true, autoloadCallback:
 //______________________________________________________________________________
 
 //---Register Connection Tracking-----------------------------------------------
-let connection = new Conection(io);
+let connection = new Connection(io);
 connection.addTrack('Entity', Entity);
 //______________________________________________________________________________
 

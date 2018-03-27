@@ -1,4 +1,4 @@
-export class client {
+class client {
   constructor(loaders){
     this.loaders = loaders;
   }
@@ -10,3 +10,4 @@ export class client {
     cb();
   }
 }
+module.exports = {client};

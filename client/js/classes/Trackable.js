@@ -3,7 +3,7 @@ if(typeof module !== 'undefined' && this.module !== module){
   uuid = require('uuid/v4');
 }
 
-export class client {
+class client {
   constructor(initPkt){
     this.id = initPkt.id;
 
@@ -17,11 +17,13 @@ export class client {
     }
   }
 
-  static trackName = '';
-  static list = {};
+
 }
 
-export class server {
+client.trackName = '';
+client.list = {};
+
+class server {
   constructor(params){
     this.id = this.id = typeof params.id != "undefined" ? params.id : uuid();
     this.dirty = false;
@@ -49,9 +51,6 @@ export class server {
     return {id: this.id};
   }
 
-  static trackName = '';
-  static list = {};
-
   static update(){
     for (let obj of server.list){
       obj.update();
@@ -59,3 +58,9 @@ export class server {
   }
 
 }
+
+server.trackName = '';
+server.list = {};
+
+
+module.exports = {client, server};

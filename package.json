@@ -4,7 +4,7 @@
   "description": "A Node JS based multiplayer game.",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "node --experimental-modules app.js",
     "webpack": "webpack",
     "babel": "babel"
   },
