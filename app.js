@@ -52,8 +52,13 @@ const db = new loki('data.db',{autosave: true, autoload: true, autoloadCallback:
 //______________________________________________________________________________
 
 //---Register Connection Tracking-----------------------------------------------
-let connection = new Connection(io);
-connection.addTrack('Entity', {class: Entity});
+const defaultPack = {Player: {}};
+global.updatePack = JSON.parse(JSON.stringify(defaultPack));
+global.initPack = JSON.parse(JSON.stringify(defaultPack));
+global.removePack = JSON.parse(JSON.stringify(defaultPack));
+for (let cName of Object.keys(defaultPack)){
+  removePack[cName] = [];
+}
 //______________________________________________________________________________
 
 //---Handle Connections---------------------------------------------------------
@@ -102,7 +107,7 @@ let checker = new Entity({});
 let MAIN_LOOP = setInterval(()=>{
   Entity.update();
 
-  connection.sendAll();
+  updatePack.Player = Player.getUpdate();
 },1000/30)
 
 //______________________________________________________________________________

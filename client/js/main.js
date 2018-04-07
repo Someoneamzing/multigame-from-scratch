@@ -12,6 +12,8 @@ const CanvasProxy = require('./classes/Canvas.js');
 const {client: Canvas} = CanvasProxy;
 const EntityProxy = require('./client/js/classes/Entity.js');
 const {client: Entity} = EntityProxy;
+const PlayerProxy = require('./client/js/classes/Player.js');
+const {client: Player} = PlayerProxy;
 
 $(()=>{
   const loginTab = $('#page-nav-assist a[href="#login-page"]');
@@ -37,8 +39,8 @@ $(()=>{
 
   const Loader = new LoaderList([Sprites]);
 
-  const connection = new Connection(socket);
-  connection.addTrack('Entity', Entity);
+  // const connection = new Connection(socket);
+  // connection.addTrack('Entity', Entity);
 //______________________________________________________________________________
 
 

@@ -34,6 +34,12 @@ let client = class {
     this.ctx.fillStyle = colour;
     this.ctx.strokeStyle = colour;
   }
+
+  text(str,x,y){
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+    this.ctx.fillText(str,x,y);
+  }
 }
 
 module.exports = {client};

@@ -23,12 +23,12 @@ let client = class {
     this.createNew(initInfo.initPkt);
   }
 
-  addTrack(className, classID){
-    this.track[className] = classID;
-    classID.trackList = this;
-    classID.trackName = className;
-    // TODO: Handle class tracking on connection
-  }
+  // addTrack(className, classID){
+  //   // this.track[className] = classID;
+  //   // classID.trackList = this;
+  //   // classID.trackName = className;
+  //   // TODO: Handle class tracking on connection
+  // }
 
   update(updatePkt){
     for(let list in updatePkt){

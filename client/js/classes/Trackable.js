@@ -19,6 +19,11 @@ let client = class {
     }
   }
 
+  // static setTrack(connection, regName){
+  //   client.trackList = connection;
+  //   client.trackList = regName;
+  // }
+
 
 }
 
@@ -66,6 +71,19 @@ let server = class {
       obj.update();
     }
   }
+
+  static getUpdate(){
+    let pkt = {};
+    for (let objId in server.list){
+      let obj = server.list[objId];
+      if (obj.dirty) pkt[objId] = obj.getUpdatePkt();
+    }
+  }
+
+  // static setTrack(connection, regName){
+  //   server.trackList = connection;
+  //   server.trackName = regName;
+  // }
 
 }
 
