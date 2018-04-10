@@ -1,5 +1,5 @@
 let uuid;
-if(typeof module !== 'undefined' && this.module !== module){
+if(typeof this !== 'undefined' && typeof module !== 'undefined' && this.module !== module){
   uuid = require('uuid/v4');
 }
 
@@ -13,10 +13,14 @@ let client = class {
   }
 
   update(updatePkt){
-    for (let key of Object.keys(updatePkt)){
-      if (key = 'id') continue;
-      this[key] = updatePkt[key];
-    }
+    ;
+    //console.log(updatePkt);
+  }
+
+  remove(){
+    //server.trackList.remove[server.trackName].push(this.id);
+    //if (!global.removePack[this.constructor.trackName].includes(this.id)) global.removePack[this.constructor.trackName].push(this.id);
+    delete this.constructor.list[this.id];
   }
 
   // static setTrack(connection, regName){
@@ -33,7 +37,7 @@ client.list = {};
 
 let server = class {
   constructor(params){
-    this.id = this.id = typeof params.id != "undefined" ? params.id : uuid();
+    this.id = typeof params.id != "undefined" ? params.id : uuid();
     this.dirty = false;
 
 
@@ -47,14 +51,15 @@ let server = class {
 
   markDirty(){
     if (this.dirty) return;
-    console.log(server);
-    server.trackList.dirty[server.trackName].push(this);
+    //console.log(server);
+    //server.trackList.dirty[server.trackName].push(this);
     this.dirty = true;
   }
 
   remove(){
-    server.trackList.remove[server.trackName].push(this.id);
-    delete server.list[this.id];
+    //server.trackList.remove[server.trackName].push(this.id);
+    if (!global.removePack[this.constructor.trackName].includes(this.id)) global.removePack[this.constructor.trackName].push(this.id);
+    delete this.constructor.list[this.id];
   }
 
   getUpdatePkt(){
@@ -78,6 +83,25 @@ let server = class {
       let obj = server.list[objId];
       if (obj.dirty) pkt[objId] = obj.getUpdatePkt();
     }
+    return pkt;
+  }
+
+  static getInit(){
+    let pkt = {};
+    for (let objId in server.list){
+      let obj = server.list[objId];
+      if (obj.dirty) pkt[objId] = obj.getInitPkt();
+    }
+    return pkt;
+  }
+
+  static getRemove(){
+    let pkt = {};
+    for (let objId in server.list){
+      let obj = server.list[objId];
+      if (obj.dirty) pkt[objId] = obj.getRemovePkt();
+    }
+    return pkt;
   }
 
   // static setTrack(connection, regName){
@@ -91,5 +115,6 @@ server.trackName = '';
 server.trackList = {};
 server.list = {};
 
+//console.log(server.getUpdate());
 
 module.exports = {client, server};

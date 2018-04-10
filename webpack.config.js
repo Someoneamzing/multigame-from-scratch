@@ -10,9 +10,9 @@ module.exports = {
     rules: [
       {
         loader: 'babel-loader',
-        exclude: /node_modules/,
+        //exclude: /node_modules/,
         query: {
-          presets: [['env',{targets:{breowsers: ["last 2 versions"]}}]],
+          presets: [['env',{targets:{browsers: ["last 2 versions"]}}]],
           plugins: [
             ['babel-plugin-transform-builtin-extend', {globals: ['Image']}]
           ]

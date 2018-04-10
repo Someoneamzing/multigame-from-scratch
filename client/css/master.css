@@ -37,3 +37,57 @@ html,body {
   padding: 10px;
   z-index: 2;
 }
+
+#chat-pane {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  margin: 0;
+  padding: 0;
+  background: rgba(0,0,0,0.7);
+  height: 300px;
+  width: 50vw;
+}
+
+#chat-view {
+  position: absolute;
+  max-height: calc(100% - 20px);
+  overflow-y: auto;
+  left: 0;
+  bottom: 20px;
+  right: 0;
+  padding: 5px;
+  color: white;
+}
+
+#chat-input {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background: none;
+  border: none;
+  color: white;
+}
+
+#chat-hint {
+  position: fixed;
+  left: 0;
+  width: 50vw;
+  bottom: 25px;
+  padding: 5px;
+  background: none;
+  padding: 0;
+  margin: 0;
+  max-height: 275px;
+  overflow-y: hidden;
+}
+
+#chat-hint div {
+  background: rgba(0,0,0,0.7);
+  width: 100%;
+  margin: 0;
+  padding-left: 5px;
+  color: white;
+}

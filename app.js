@@ -6,10 +6,18 @@ const express = require('express');
 const Socket = require('socket.io');
 const httpModule = require('http');
 
-const ConnectionProxy = require('./client/js/classes/Connection.js');
-const {server: Connection} = ConnectionProxy;
+// const ConnectionProxy = require('./client/js/classes/Connection.js');
+// const {server: Connection} = ConnectionProxy;
 const EntityProxy = require('./client/js/classes/Entity.js');
 const {server: Entity} = EntityProxy;
+//Entity.trackName = 'Entity';
+const PlayerProxy = require('./client/js/classes/Player.js');
+const {server: Player} = PlayerProxy;
+Player.trackName = "Player";
+
+function copyDefaultPkt(){
+  return JSON.parse(JSON.stringify(defaultPack));
+}
 
 //Fix node imports with the --experimental-modules flag.
 
@@ -34,6 +42,7 @@ app.get('/bootstrapcss', (req,res)=>{
   res.sendFile(__dirname + "/node_modules/bootstrap/dist/css/bootstrap.min.css")
 })
 
+
 app.use(express.static('client'));
 
 //______________________________________________________________________________
@@ -53,9 +62,9 @@ const db = new loki('data.db',{autosave: true, autoload: true, autoloadCallback:
 
 //---Register Connection Tracking-----------------------------------------------
 const defaultPack = {Player: {}};
-global.updatePack = JSON.parse(JSON.stringify(defaultPack));
-global.initPack = JSON.parse(JSON.stringify(defaultPack));
-global.removePack = JSON.parse(JSON.stringify(defaultPack));
+global.updatePack = copyDefaultPkt();
+global.initPack = copyDefaultPkt();
+global.removePack = copyDefaultPkt();
 for (let cName of Object.keys(defaultPack)){
   removePack[cName] = [];
 }
@@ -65,7 +74,7 @@ for (let cName of Object.keys(defaultPack)){
 
 io.on('connection',(socket)=>{
   console.log('Socket Connection: ' + socket);
-  console.log(io.sockets.connected);
+  //console.log(io.sockets.connected);
   socket.on('sign-in',(creds)=>{
     const res = accounts.count(creds);
     if (res == 1) {
@@ -87,8 +96,42 @@ io.on('connection',(socket)=>{
     }
   });
 
-  socket.on('loaded',()=>{
-    ;
+  socket.on('loaded',(name)=>{
+    let connPlayer = new Player({name,id:socket.id,socket});
+
+    let init = copyDefaultPkt();
+    init.Player = Player.getInit();
+    console.log(init);
+    socket.emit('init',{initPkt: init,playerId: socket.id});
+    socket.on('disconnect',()=>{
+      console.log(socket.id, Player.list[socket.id].name);
+      Player.list[socket.id].remove();
+    })
+
+    socket.on('click', (e)=>{
+      console.log("Click at (" + e.x + "," + e.y + ") on the " + ["Left","Middle","Right"][e.button] + " button.");
+    })
+
+    socket.on('key', (keys)=>{
+      Player.list[socket.id].keys = keys;
+    })
+
+    let store = {};
+
+    socket.on('eval', (str)=>{
+      try {
+        socket.emit('eval-res',eval(str));
+      } catch(err) {
+        socket.emit('eval-res',err.message,err);
+      }
+    })
+
+    socket.on('chat', (str)=>{
+      console.log("CHAT:  <" + Player.list[socket.id].name + "> " + str);
+      for(let id in Player.list){
+        Player.list[id].socket.emit('chat',"&lt;" + Player.list[socket.id].name + "&gt; " + str);
+      }
+    })
   })
 })
 
@@ -105,9 +148,22 @@ http.listen(CONFIG.port, ()=>{
 let checker = new Entity({});
 
 let MAIN_LOOP = setInterval(()=>{
-  Entity.update();
+  updatePack = copyDefaultPkt();
+  Player.update();
 
   updatePack.Player = Player.getUpdate();
+  // console.log(initPack);
+  for(let id in Player.list){
+    Player.list[id].socket.emit('init-pkt',initPack);
+    Player.list[id].socket.emit('update',updatePack);
+    Player.list[id].socket.emit('remove', removePack)
+
+
+  }
+  initPack = copyDefaultPkt();
+  for (let cName of Object.keys(defaultPack)){
+    removePack[cName] = [];
+  }
 },1000/30)
 
 //______________________________________________________________________________

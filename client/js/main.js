@@ -1,7 +1,10 @@
 console.log('Connected to server at ' + location.hostname + ' on port ' + location.port + '.');
 
-const ConnectionProxy = require('./classes/Connection.js');
-const {client: Connection} = ConnectionProxy;
+// const ConnectionProxy = require('./classes/Connection.js');
+// const {client: Connection} = ConnectionProxy;
+// import React from 'react';
+// import ReactDOM from 'react-dom';
+
 const SpriteProxy = require('./classes/Sprite.js');
 const {client: Sprite} = SpriteProxy;
 const SpriteListProxy = require('./classes/SpriteList.js');
@@ -10,10 +13,21 @@ const LoaderListProxy = require('./classes/LoaderList.js');
 const {client: LoaderList} = LoaderListProxy;
 const CanvasProxy = require('./classes/Canvas.js');
 const {client: Canvas} = CanvasProxy;
-const EntityProxy = require('./client/js/classes/Entity.js');
+const EntityProxy = require('./classes/Entity.js');
 const {client: Entity} = EntityProxy;
-const PlayerProxy = require('./client/js/classes/Player.js');
+Entity.trackName = "Entity";
+const PlayerProxy = require('./classes/Player.js');
 const {client: Player} = PlayerProxy;
+Player.trackName = "Player";
+//const KeyMap = require('./classes/KeyMap.js');
+window.KEYS = {};
+const GAME = {screen: 'login'};
+
+window.getClassLists = ()=>{
+  return {
+    Player: Player.list
+  }
+}
 
 $(()=>{
   const loginTab = $('#page-nav-assist a[href="#login-page"]');
@@ -22,7 +36,7 @@ $(()=>{
   const ctx = document.getElementById('gc').getContext('2d');
   const canvas = new Canvas(ctx);
 
-  let PlayerID;
+  //let PlayerID;
 
   canvas.resize({w: window.innerWidth, h: window.innerHeight});
 
@@ -50,6 +64,7 @@ $(()=>{
     $("#pass").get(0).setCustomValidity('');
     $('#user-feedback').text('');
     if (res.success){
+      changeScreen('load');
       loadTab.tab('show');
       loadAssets();
     } else {
@@ -142,9 +157,188 @@ $(()=>{
     Loader.load($('#load-bar'),()=>{
       console.log('Finished loading assets.', Loader.loaders);
       $('#game-page').append($(Loader.loaders[0].list[1]));
-      connection.begin();
+      //connection.begin();
+      socket.emit('loaded', $("#user").val());
       gameTab.tab('show');
+      changeScreen('game');
     });
   }
+//______________________________________________________________________________
+
+
+//---Initialization-------------------------------------------------------------
+  socket.on('init',(initInfo)=>{
+    window.PlayerId = initInfo.playerId;
+    for(let pId in initInfo.initPkt.Player){
+      new Player(initInfo.initPkt.Player[pId]);
+    }
+
+    socket.on('update',(pkt)=>{
+      updatePkt(pkt);
+    })
+
+    socket.on('init-pkt', (pkt)=>{
+      initPkt(pkt);
+    })
+
+    socket.on('remove', (pkt)=>{
+      removePkt(pkt);
+    })
+
+    socket.on('chat', (msg)=>{
+      addToChat(msg);
+    })
+
+    socket.on('eval-res', (res)=>{
+      addToChat(res);
+    })
+
+    beginRender();
+  })
+
+  function addToChat(msg){
+    console.log("CHAT:  " + msg);
+    $('#chat-view').append('<div class="chat-msg">' + msg + '</div>')
+    let newMsg = $('#chat-hint').append('<div class="chat-msg">' + msg + '</div>').find(':last-child').show().delay(5000).fadeOut(1000,(e)=>{console.log(e);newMsg.remove();});
+    $('#chat-view').remove('.chat-msg:nth-last-child(1n+50)');
+    $('#chat-hint').remove(':nth-last-child(1n+10)');
+    if ($('#chat-view').scrollTop()>= $("#chat-view").get(0).scrollHeight-$("#chat-view").height() - 40){
+      console.log('Auto Scrolling', $("#chat-view").get(0).scrollHeight);
+      $('#chat-view').scrollTop($("#chat-view").get(0).scrollHeight);
+    }
+    $('#chat-hint').scrollTop($("#chat-hint").get(0).scrollHeight);
+  }
+//______________________________________________________________________________
+
+
+//---Update Handling------------------------------------------------------------
+  function updatePkt(pkt) {
+    //console.log("Update");
+
+    //Players
+    //console.log(pkt.Player);
+    for (let id in pkt.Player){
+      //console.log(id);
+      let player = Player.list[id];
+      player.update(pkt.Player[id]);
+    }
+
+
+  }
+
+  function initPkt(pkt){
+    //console.log(pkt);
+
+    //Players
+    for (let id in pkt.Player){
+      let player = new Player(pkt.Player[id]);
+      //console.log("New Player",player);
+    }
+  }
+
+  function removePkt(pkt){
+
+
+    //Players
+    for (let id of pkt.Player){
+      addToChat(Player.list[id].name + " left the game.");
+      Player.list[id].remove();
+    }
+  }
+//______________________________________________________________________________
+
+//---Render Loop----------------------------------------------------------------
+  let renderLoop = ()=>{
+
+    canvas.reset();
+    canvas.clear();
+    let player = Player.list[PlayerId];
+    canvas.camera.setPos(player.x + player.w/2,player.y + player.h/2);
+    canvas.update();
+
+    for (let pId in Player.list){
+      Player.list[pId].render(canvas);
+    }
+    //console.log(Player.list);
+
+    requestAnimationFrame(renderLoop);
+  }
+
+  function beginRender(){
+    requestAnimationFrame(renderLoop);
+  }
+
+//______________________________________________________________________________
+
+
+//---Screens--------------------------------------------------------------------
+  function changeScreen(newScreen){
+    switch(newScreen){
+      case "login":
+        $('#chat-pane').hide();
+        break;
+
+      case 'load':
+        $('#chat-pane').hide();
+        break;
+
+      case "game":
+        $('#chat-pane').hide();
+        $('#chat-input').blur();
+        $('#chat-input').val("");
+        break;
+
+      case "chat":
+        $('#chat-pane').show();
+        $('#chat-view .chat-msg').show();
+        console.log('Auto Scrolling', $("#chat-view").get(0).scrollHeight);
+        $('#chat-view').scrollTop($("#chat-view").get(0).scrollHeight);
+        $('#chat-input').focus();
+        break;
+    }
+    GAME.screen = newScreen;
+  }
+//______________________________________________________________________________
+
+//---Event Listiners------------------------------------------------------------
+  canvas.canvas.click((e)=>{
+    socket.emit('click',{x: e.offsetX + canvas.camera.x - canvas.width/2, y: e.offsetY + canvas.camera.y - canvas.height/2, button: e.which})
+  });
+
+  $(document).keydown((e)=>{
+    KEYS[e.key.toUpperCase()] = true;
+    console.log(e.key.toUpperCase());
+    if(KEYS[String.fromCharCode(0x5C)]){
+
+      //console.log('opening chat', GAME.screen);
+      if(GAME.screen == 'game') {changeScreen('chat');e.preventDefault();} //else if (GAME.screen == 'chat') {changeScreen('game')};
+    }
+
+    if(KEYS['ESCAPE']){
+      if(GAME.screen != 'game'){
+        changeScreen('game');
+      }
+    }
+    //console.log(KEYS);
+    socket.emit('key',KEYS);
+  })
+
+  $(document).keyup((e)=>{
+    KEYS[e.key.toUpperCase()] = false;
+    //console.log(KEYS);
+    socket.emit('key',KEYS);
+  })
+
+  $("#chat-form").submit((e)=>{
+    e.preventDefault();
+    let val = $('#chat-input').val();
+    if(val.charAt(0) == "/"){
+      socket.emit('eval',val.slice(1));
+    } else {
+      socket.emit('chat',val);
+    }
+
+    changeScreen('game');
+  })
 //______________________________________________________________________________
 })

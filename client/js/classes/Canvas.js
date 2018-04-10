@@ -40,6 +40,20 @@ let client = class {
     this.ctx.textBaseline = 'middle';
     this.ctx.fillText(str,x,y);
   }
+
+  clear(){
+    this.ctx.clearRect(0,0,this.canvas.width(),this.canvas.height());
+  }
+
+  update(){
+    this.ctx.save();
+    //console.log(this.camera.x,this.camera.y);
+    this.ctx.translate(-(this.camera.x - this.width/2),-(this.camera.y - this.height/2));
+  }
+
+  reset(){
+    this.ctx.restore();
+  }
 }
 
 module.exports = {client};

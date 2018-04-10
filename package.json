@@ -4,7 +4,7 @@
   "description": "A Node JS based multiplayer game.",
   "main": "app.js",
   "scripts": {
-    "start": "node --experimental-modules app.js",
+    "start": "node app.js",
     "webpack": "webpack",
     "babel": "babel"
   },
@@ -29,6 +29,8 @@
     "express": "^4.16.3",
     "jquery": "^3.3.1",
     "lokijs": "^1.5.3",
+    "react": "^16.3.1",
+    "react-dom": "^16.3.1",
     "socket.io": "^2.0.4",
     "uuid": "^3.2.1"
   },
