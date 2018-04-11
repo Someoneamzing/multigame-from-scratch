@@ -30,6 +30,14 @@ let client = class {
     }
   }
 
+  centerRect({x, y, w, h}, outline){
+    if(outline){
+      this.ctx.strokeRect(x-w/2,y-h/2,w,h);
+    } else {
+      this.ctx.fillRect(x-w/2,y-h/2,w,h);
+    }
+  }
+
   colour(colour){
     this.ctx.fillStyle = colour;
     this.ctx.strokeStyle = colour;

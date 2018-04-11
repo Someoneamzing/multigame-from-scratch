@@ -19,13 +19,20 @@ Entity.trackName = "Entity";
 const PlayerProxy = require('./classes/Player.js');
 const {client: Player} = PlayerProxy;
 Player.trackName = "Player";
+const ItemProxy = require('./classes/Item.js');
+const {client: Item} = ItemProxy;
+const WallProxy = require('./classes/Wall.js');
+const {client: Wall} = WallProxy;
+
 //const KeyMap = require('./classes/KeyMap.js');
 window.KEYS = {};
 const GAME = {screen: 'login'};
 
 window.getClassLists = ()=>{
   return {
-    Player: Player.list
+    Player: Player.list,
+    Item: Item.list,
+    Wall: Wall.list
   }
 }
 
@@ -172,6 +179,12 @@ $(()=>{
     for(let pId in initInfo.initPkt.Player){
       new Player(initInfo.initPkt.Player[pId]);
     }
+    for(let iId in initInfo.initPkt.Item){
+      new Item(initInfo.initPkt.Item[iId]);
+    }
+    for(let wId in initInfo.initPkt.Wall){
+      new Wall(initInfo.initPkt.Wall[wId]);
+    }
 
     socket.on('update',(pkt)=>{
       updatePkt(pkt);
@@ -223,6 +236,18 @@ $(()=>{
       player.update(pkt.Player[id]);
     }
 
+    for (let id in pkt.Item){
+      //console.log(id);
+      let item = Item.list[id];
+      item.update(pkt.Item[id]);
+    }
+
+    for (let id in pkt.Wall){
+      //console.log(id);
+      let wall = Wall.list[id];
+      wall.update(pkt.Wall[id]);
+    }
+
 
   }
 
@@ -234,6 +259,15 @@ $(()=>{
       let player = new Player(pkt.Player[id]);
       //console.log("New Player",player);
     }
+
+    for (let id in pkt.Item){
+      let item = new Item(pkt.Item[id]);
+      //console.log("New Item",item);
+    }
+
+    for (let id in pkt.Wall){
+      let wall = new Wall(pkt.Wall[id]);
+    }
   }
 
   function removePkt(pkt){
@@ -243,6 +277,14 @@ $(()=>{
     for (let id of pkt.Player){
       addToChat(Player.list[id].name + " left the game.");
       Player.list[id].remove();
+    }
+
+    for (let id of pkt.Item){
+      Item.list[id].remove();
+    }
+
+    for (let id of pkt.Wall){
+      Wall.list[id].remove();
     }
   }
 //______________________________________________________________________________
@@ -256,8 +298,16 @@ $(()=>{
     canvas.camera.setPos(player.x + player.w/2,player.y + player.h/2);
     canvas.update();
 
+    for (let iId in Item.list){
+      Item.list[iId].render(canvas);
+    }
+
     for (let pId in Player.list){
       Player.list[pId].render(canvas);
+    }
+
+    for (let wId in Wall.list){
+      Wall.list[wId].render(canvas);
     }
     //console.log(Player.list);
 
@@ -337,7 +387,7 @@ $(()=>{
     } else {
       socket.emit('chat',val);
     }
-
+    $('#chat-history').append("<option value='" + val.replace(/"/g, "&quot;").replace(/'/g,"&apos;") + "'>");
     changeScreen('game');
   })
 //______________________________________________________________________________

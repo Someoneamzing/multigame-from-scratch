@@ -23,6 +23,12 @@ let client = class {
     delete this.constructor.list[this.id];
   }
 
+  get type() {
+    let inst = new Array();
+    inst.push(client.trackName);
+    return inst;
+  }
+
   // static setTrack(connection, regName){
   //   client.trackList = connection;
   //   client.trackList = regName;
@@ -70,6 +76,12 @@ let server = class {
     return {id: this.id};
   }
 
+  get type() {
+    let inst = new Array();
+    inst.push(server.trackName);
+    return inst;
+  }
+
   static update(){
     for (let objId in server.list){
       let obj = server.list[objId];
@@ -103,6 +115,8 @@ let server = class {
     }
     return pkt;
   }
+
+
 
   // static setTrack(connection, regName){
   //   server.trackList = connection;

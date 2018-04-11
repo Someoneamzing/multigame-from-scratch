@@ -14,6 +14,10 @@ const {server: Entity} = EntityProxy;
 const PlayerProxy = require('./client/js/classes/Player.js');
 const {server: Player} = PlayerProxy;
 Player.trackName = "Player";
+const ItemProxy = require('./client/js/classes/Item.js');
+const {server: Item} = ItemProxy;
+const WallProxy = require('./client/js/classes/Wall.js');
+const {server: Wall} = WallProxy;
 
 function copyDefaultPkt(){
   return JSON.parse(JSON.stringify(defaultPack));
@@ -61,7 +65,7 @@ const db = new loki('data.db',{autosave: true, autoload: true, autoloadCallback:
 //______________________________________________________________________________
 
 //---Register Connection Tracking-----------------------------------------------
-const defaultPack = {Player: {}};
+const defaultPack = {Player: {}, Item: {}, Wall: {}};
 global.updatePack = copyDefaultPkt();
 global.initPack = copyDefaultPkt();
 global.removePack = copyDefaultPkt();
@@ -101,7 +105,9 @@ io.on('connection',(socket)=>{
 
     let init = copyDefaultPkt();
     init.Player = Player.getInit();
-    console.log(init);
+    init.Item = Item.getInit();
+    init.Wall = Wall.getInit();
+    console.log("Hello", init);
     socket.emit('init',{initPkt: init,playerId: socket.id});
     socket.on('disconnect',()=>{
       console.log(socket.id, Player.list[socket.id].name);
@@ -145,20 +151,24 @@ http.listen(CONFIG.port, ()=>{
 //______________________________________________________________________________
 
 //---Start Main Loop------------------------------------------------------------
-let checker = new Entity({});
+//let checker = new Entity({});
 
 let MAIN_LOOP = setInterval(()=>{
   updatePack = copyDefaultPkt();
   Player.update();
 
+  Item.update();
+
   updatePack.Player = Player.getUpdate();
+
+  updatePack.Item = Item.getUpdate();
+
+  updatePack.Wall = Wall.getUpdate();
   // console.log(initPack);
   for(let id in Player.list){
     Player.list[id].socket.emit('init-pkt',initPack);
     Player.list[id].socket.emit('update',updatePack);
     Player.list[id].socket.emit('remove', removePack)
-
-
   }
   initPack = copyDefaultPkt();
   for (let cName of Object.keys(defaultPack)){
