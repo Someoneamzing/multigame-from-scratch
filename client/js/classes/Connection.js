@@ -25,7 +25,7 @@ let client = class {
 
   addTrack(className, classID){
     this.track[className] = classID;
-    classID.trackList = this;
+    classID.trackList.inst = this;
     classID.trackName = className;
     // TODO: Handle class tracking on connection
   }
@@ -120,10 +120,10 @@ let server = class {
     for (let listName in this.updates) {
       let list = this.updates[listName];
       list.length = 0;
-      for (let obj of this.dirty[listName]){
-        list.push(obj.getUpdatePkt());
+      for (let obj of this.track[listName]){
+        if (obj.dirty) list.push(obj.getUpdatePkt());
       }
-      this.dirty[listName].length = 0;
+      //this.dirty[listName].length = 0;
     }
     this.io.to(this.room).emit('connection-update', this.updates);
   }

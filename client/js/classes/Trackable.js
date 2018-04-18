@@ -42,8 +42,8 @@ let server = class {
 
   markDirty(){
     if (this.dirty) return;
-    console.log(server);
-    server.trackList.dirty[server.trackName].push(this);
+    // console.log(server.trackList.inst);
+    // server.trackList.dirty[server.trackName].push(this);
     this.dirty = true;
   }
 
