@@ -53,6 +53,17 @@
       </div>
       <div id='game-page' class='tab-pane'>
         <canvas id="gc" width="300" height="300"></canvas>
+        <canvas id="mc" width="300" height="300"></canvas>
+        <div id='chat-hint'></div>
+        <div id="chat-pane">
+          <div id='chat-view'>
+
+          </div>
+          <form id='chat-form'><input type="text" id='chat-input' list='chat-history'><datalist id='chat-history'></datalist></form>
+        </div>
+        <div id='death-screen'>
+          <h2>You were killed by <span id='killer'></span>.</h2>
+        </div>
       </div>
     </div>
   </body>

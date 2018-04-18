@@ -30,6 +30,12 @@ let client = class {
   get(name){
     return this.list[this.list.findIndex((sp)=>{return sp.name == name})];
   }
+
+  update(){
+    for (let s of this.list){
+      s.update();
+    }
+  }
 }
 
 module.exports = {client};
