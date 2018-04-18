@@ -7,12 +7,18 @@ let client = class {
     this.totalSize = size;
     this.list = [];
     this.hotbar = [];
+    this.selectedSlot = 0;
     this.clear();
   }
 
-  update(hotbar,list){
+  get selected(){
+    return this.hotbar[this.selectedSlot];
+  }
+
+  update(hotbar,list,selectedSlot){
     this.hotbar = hotbar;
     this.list = list;
+    this.selectedSlot = selectedSlot;
   }
 
   clear(){
@@ -32,7 +38,12 @@ let server = class {
     this.totalSize = size;
     this.list = [];
     this.hotbar = [];
+    this.selectedSlot = 0;
     this.clear();
+  }
+
+  get selected(){
+    return this.hotbar[this.selectedSlot];
   }
 
   drop(from,slot,amount=Infinity,x = 0,y = 0){
@@ -47,13 +58,46 @@ let server = class {
   }
 
   remove(from,slot,amount){
-    let type = this[from][slot].item;
+    if (from == 'any'){
+      let int = this.getFirst(slot);
+      slot = int.slot;
+      from = int.from;
+      if (slot <= -1) return;
+    }
+    let type = this[{'hotbar':'hotbar','inventory': 'list'}[from]][slot].item;
     if (type == null) return 0;
     let count = Math.min(this[from][slot].count,amount);
     if (count == 0) return 0;
     this[from][slot].count -= count;
     if(this[from][slot].count <= 0) this[from][slot].item = null;
     return count;
+  }
+
+  getFirst(type, from = 'any'){
+    switch(from){
+      case 'inventory':
+        return this.list.findIndex((item)=>{
+          return item.item == type;
+        })
+        break;
+
+      case 'hotbar':
+        return this.hotbar.findIndex((item)=>{
+          return item.item == type;
+        })
+        break;
+
+      case 'any':
+        let i = this.hotbar.findIndex((item)=>{
+          return item.item == type;
+        })
+
+        if (i > -1) return {slot: i, from: 'hotbar'};
+
+        return {slot: this.list.findIndex((item)=>{
+          return item.item == type;
+        }), from: 'inventory'};
+    }
   }
 
   add(type,amount,to = 'any',slot){

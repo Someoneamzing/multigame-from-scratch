@@ -16,7 +16,10 @@ let client = class extends EntityProxy.client {
     canvas.colour('grey');
     canvas.centerRect(this);
     canvas.colour('black');
+    canvas.lineWidth(2);
     canvas.centerRect(this,true);
+    canvas.minimap.colour('grey');
+    canvas.minimap.centerRect(this);
   }
 
   get type() {

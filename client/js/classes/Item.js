@@ -11,7 +11,8 @@ let client = class extends EntityProxy.client {
   }
 
   render(canvas){
-    super.render(canvas);
+    Sprites.get('item_' + this.item).drawCenter(canvas, this)
+    //super.render(canvas);
 
   }
 
@@ -61,7 +62,7 @@ let server = class extends EntityProxy.server {
 
   update(){
     let p = this.collision(this.x,this.y,false,'Player');
-    if (this.delay <= 0 && p){
+    if (this.delay <= 0 && p && !p.dead){
       let added = p.inventory.add(this.item, this.count, 'any');
       this.count -= added;
       console.log(added, this.count);

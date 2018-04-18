@@ -1,10 +1,12 @@
 const CameraProxy = require('./Camera.js');
 
 let client = class {
-  constructor(ctx, camera = new CameraProxy.client(ctx, {x: 0, y: 0, zoom: 1})){
+  constructor(ctx, hasMini = false, camera = new CameraProxy.client(ctx, {x: 0, y: 0, zoom: 1})){
     this.ctx = ctx;
     this.canvas = $(this.ctx.canvas);
     this.camera = camera;
+    this.minimap = hasMini !== false?new client(hasMini, false, new CameraProxy.client(this.hasMini, {x: 0, y: 0, zoom: 0.1})):false;
+    console.log(this.minimap);
   }
 
   get width() {
@@ -49,18 +51,51 @@ let client = class {
     this.ctx.fillText(str,x,y);
   }
 
+  textWO(str,x,y,fill,line){
+    let old = this.ctx.fillStyle;
+    let lineW = this.ctx.lineWidth;
+    this.ctx.fillStyle = fill;
+    this.ctx.lineWidth = 1;
+    this.ctx.strokeStyle = line;
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+    this.ctx.fillText(str,x,y);
+    this.ctx.strokeText(str,x,y);
+    this.colour(old);
+    this.lineWidth(lineW);
+  }
+
+  lineWidth(w){
+    this.ctx.lineWidth = w;
+  }
+
+  font(f){
+    this.ctx.font = f;
+  }
+
   clear(){
     this.ctx.clearRect(0,0,this.canvas.width(),this.canvas.height());
   }
 
   update(){
     this.ctx.save();
+    if(this.minimap) {
+      this.minimap.clear();
+      this.minimap.camera.setPos(this.camera.x,this.camera.y);
+      this.minimap.update();
+
+    }
     //console.log(this.camera.x,this.camera.y);
-    this.ctx.translate(-(this.camera.x - this.width/2),-(this.camera.y - this.height/2));
+    this.ctx.scale(this.camera.zoom, this.camera.zoom);
+    this.ctx.translate(-(this.camera.x - this.width/(2*this.camera.zoom)),-(this.camera.y - this.height/(2*this.camera.zoom)));
+
   }
 
   reset(){
     this.ctx.restore();
+    if (this.minimap){
+      this.minimap.reset();
+    }
   }
 }
 

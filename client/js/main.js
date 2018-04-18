@@ -23,6 +23,8 @@ const ItemProxy = require('./classes/Item.js');
 const {client: Item} = ItemProxy;
 const WallProxy = require('./classes/Wall.js');
 const {client: Wall} = WallProxy;
+const ProjectileProxy = require('./classes/Projectile.js');
+const {client: Projectile} = ProjectileProxy;
 
 //const KeyMap = require('./classes/KeyMap.js');
 window.KEYS = {};
@@ -32,7 +34,8 @@ window.getClassLists = ()=>{
   return {
     Player: Player.list,
     Item: Item.list,
-    Wall: Wall.list
+    Wall: Wall.list,
+    Projectile: Projectile.list
   }
 }
 
@@ -41,7 +44,10 @@ $(()=>{
   const loadTab = $('#page-nav-assist a[href="#load-page"]');
   const gameTab = $('#page-nav-assist a[href="#game-page"]');
   const ctx = document.getElementById('gc').getContext('2d');
-  const canvas = new Canvas(ctx);
+  const miniCtx = document.getElementById('mc').getContext('2d');
+  //let miniMap =  new Canvas(miniCtx);
+  const canvas = new Canvas(ctx,miniCtx);
+
 
   //let PlayerID;
 
@@ -54,9 +60,15 @@ $(()=>{
 
 //---Asset Definition-----------------------------------------------------------
 
-  const Sprites = new SpriteList();
+  window.Sprites = new SpriteList();
   Sprites.add(new Sprite({ctx, src: '/img/test.png'}));//, name: 'test-sprite'
   Sprites.add(new Sprite({ctx, src: '/img/test2.png'}));
+  Sprites.add(new Sprite({ctx, src: '/img/gold.png', name: 'item_gold', w: 64, h: 64}));
+  Sprites.add(new Sprite({ctx, src: '/img/bow.png', name: 'item_bow', w: 64, h: 64}));
+  Sprites.add(new Sprite({ctx, src: '/img/arrow.png', name: 'proj_arrow', w: 32, h: 8}));
+  Sprites.add(new Sprite({ctx, src: '/img/arrowItem.png', name: 'item_arrow', w: 64, h: 64}));
+  Sprites.add(new Sprite({ctx, src: '/img/bandage.png', name: 'item_bandage', w: 64, h: 64}));
+
 
   const Loader = new LoaderList([Sprites]);
 
@@ -185,6 +197,9 @@ $(()=>{
     for(let wId in initInfo.initPkt.Wall){
       new Wall(initInfo.initPkt.Wall[wId]);
     }
+    for(let pId in initInfo.initPkt.Projectile){
+      new Projectile(initInfo.initPkt.Projectile[pId]);
+    }
 
     socket.on('update',(pkt)=>{
       updatePkt(pkt);
@@ -204,6 +219,15 @@ $(()=>{
 
     socket.on('eval-res', (res)=>{
       addToChat(res);
+    })
+
+    socket.on('kill', (name)=>{
+      $('#killer').text(name);
+      changeScreen('dead');
+    })
+
+    socket.on('respawn', ()=>{
+      changeScreen('game');
     })
 
     beginRender();
@@ -248,6 +272,11 @@ $(()=>{
       wall.update(pkt.Wall[id]);
     }
 
+    for (let id in pkt.Projectile){
+      let proj = Projectile.list[id];
+      proj.update(pkt.Projectile[id]);
+    }
+
 
   }
 
@@ -268,6 +297,11 @@ $(()=>{
     for (let id in pkt.Wall){
       let wall = new Wall(pkt.Wall[id]);
     }
+
+    for (let id in pkt.Projectile){
+      let proj = new Projectile(pkt.Projectile[id]);
+      console.log('New Projectile');
+    }
   }
 
   function removePkt(pkt){
@@ -286,29 +320,47 @@ $(()=>{
     for (let id of pkt.Wall){
       Wall.list[id].remove();
     }
+
+    for (let id of pkt.Projectile){
+      Projectile.list[id].remove();
+    }
   }
 //______________________________________________________________________________
 
 //---Render Loop----------------------------------------------------------------
   let renderLoop = ()=>{
 
-    canvas.reset();
+
     canvas.clear();
     let player = Player.list[PlayerId];
     canvas.camera.setPos(player.x + player.w/2,player.y + player.h/2);
     canvas.update();
+    canvas.colour('black');
+    canvas.lineWidth(2);
+    canvas.ctx.beginPath();
+    canvas.ctx.moveTo(-10,0);
+    canvas.ctx.lineTo(10,0);
+    canvas.ctx.moveTo(0,-10);
+    canvas.ctx.lineTo(0,10);
+    canvas.ctx.stroke();
 
     for (let iId in Item.list){
       Item.list[iId].render(canvas);
     }
 
-    for (let pId in Player.list){
-      Player.list[pId].render(canvas);
-    }
-
     for (let wId in Wall.list){
       Wall.list[wId].render(canvas);
     }
+
+    for (let pId in Projectile.list){
+      Projectile.list[pId].render(canvas);
+    }
+
+    for (let pId in Player.list){
+      Player.list[pId].render(canvas);
+    }
+    canvas.reset();
+    renderUI();
     //console.log(Player.list);
 
     requestAnimationFrame(renderLoop);
@@ -316,6 +368,50 @@ $(()=>{
 
   function beginRender(){
     requestAnimationFrame(renderLoop);
+  }
+
+  function renderUI(){
+    let player = Player.list[PlayerId];
+
+    canvas.colour('red');
+    canvas.rect({x: 20,y: canvas.height - 40, w: 200, h: 20});
+    canvas.colour('green');
+    canvas.rect({x: 20,y: canvas.height - 40, w: 200 * (player.health/player.maxHealth), h: 20});
+    canvas.colour('white');
+    canvas.font('15px Arial');
+    canvas.text("" + player.health + '/' + player.maxHealth, 120, canvas.height - 30);
+
+    canvas.colour('grey');
+    canvas.rect({x: canvas.width - 220,y: canvas.height - 40, w: 200, h: 20});
+    canvas.colour('blue');
+    canvas.rect({x: canvas.width - 220,y: canvas.height - 40, w: 200 * (player.mana/player.maxMana), h: 20});
+    canvas.colour('white');
+    canvas.font('15px Arial');
+    canvas.text("" + player.mana + '/' + player.maxMana, canvas.width - 120, canvas.height - 30);
+
+    canvas.colour('grey');
+    canvas.rect({x:240, y: canvas.height - 40, w: canvas.width - 2 * 240, h: 20});
+    canvas.colour('lime');
+    canvas.rect({x:240, y: canvas.height - 40, w: player.exp / player.toNextL * (canvas.width - 2 * 240), h: 20});
+    //canvas.colour('white');
+    canvas.font('30px Consolas');
+    canvas.textWO("" + player.level, canvas.width/2, canvas.height - 45, 'white', 'black');
+
+
+    canvas.colour('#333333');
+    canvas.rect({x: canvas.width/2 - 450,y: 20, w: 900, h: 100});
+    for (let i in player.inventory.hotbar){
+      canvas.colour('grey');
+      canvas.lineWidth(1);
+      canvas.rect({x: canvas.width/2 - 450 + i * 100,y: 20, w: 100, h: 100}, true);
+      if (player.inventory.hotbar[i].item != null) Sprites.get('item_' + player.inventory.hotbar[i].item).drawCenter(canvas, {x: canvas.width/2 - 400 + i *100, y: 70, w: 64, h: 64});
+      canvas.colour('white');
+      canvas.font('20px Arial');
+      if (player.inventory.hotbar[i].item != null && player.inventory.hotbar[i].count > 1) canvas.text(player.inventory.hotbar[i].count, canvas.width/2 - 365 + i *100, 110);
+    }
+    canvas.colour('#cccccc');
+    canvas.lineWidth(3);
+    canvas.rect({x: canvas.width/2 - 450 + player.inventory.selectedSlot * 100,y: 20, w: 100, h: 100}, true);
   }
 
 //______________________________________________________________________________
@@ -336,6 +432,7 @@ $(()=>{
         $('#chat-pane').hide();
         $('#chat-input').blur();
         $('#chat-input').val("");
+        $('#death-screen').hide();
         break;
 
       case "chat":
@@ -345,15 +442,32 @@ $(()=>{
         $('#chat-view').scrollTop($("#chat-view").get(0).scrollHeight);
         $('#chat-input').focus();
         break;
+
+      case 'dead':
+        $('#chat-pane').hide();
+        $('#chat-input').blur();
+        $('#chat-input').val("");
+        $('#death-screen').show();
+        break;
     }
     GAME.screen = newScreen;
   }
 //______________________________________________________________________________
 
 //---Event Listiners------------------------------------------------------------
-  canvas.canvas.click((e)=>{
-    socket.emit('click',{x: e.offsetX + canvas.camera.x - canvas.width/2, y: e.offsetY + canvas.camera.y - canvas.height/2, button: e.which})
+  canvas.canvas.mousedown((e)=>{
+    e.preventDefault();
+    socket.emit('mousedown',{x: e.offsetX + canvas.camera.x - canvas.width/2, y: e.offsetY + canvas.camera.y - canvas.height/2, button: e.button})
   });
+
+  canvas.canvas.mouseup((e)=>{
+    e.preventDefault();
+    socket.emit('mouseup', {x: e.offsetX + canvas.camera.x - canvas.width/2, y: e.offsetY + canvas.camera.y - canvas.height/2, button: e.button})
+  })
+
+  canvas.canvas.bind('contextmenu', (e)=>{
+    e.preventDefault();
+  })
 
   $(document).keydown((e)=>{
     KEYS[e.key.toUpperCase()] = true;

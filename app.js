@@ -14,10 +14,45 @@ const {server: Entity} = EntityProxy;
 const PlayerProxy = require('./client/js/classes/Player.js');
 const {server: Player} = PlayerProxy;
 Player.trackName = "Player";
+global.Tool = require('./client/js/classes/Tool.js').server;
+const Arrow = require('./client/js/classes/Arrow.js').server;
+//---Weapons--------------------------------------------------------------------
+let bow = new Tool({name: 'bow'});
+bow.use = (player)=>{
+  let found = player.inventory.getFirst('arrow');
+  //player.socket.emit('chat', found);
+  let {slot, from} = found;
+  if (slot > -1){
+    //player.inventory.remove(from, slot, 1);
+    arrow.use(player, slot);
+    let len = Math.sqrt(Math.pow(player.mouse.x - player.x,2) + Math.pow(player.mouse.y - player.y, 2));
+    let hsp = ((player.mouse.x - player.x) / len) * Arrow.speed;
+    let vsp = ((player.mouse.y - player.y) / len) * Arrow.speed;
+    new Arrow({x: player.x, y: player.y, hsp: hsp, vsp: vsp, pId: player.id});
+  }
+
+  //Player.broadcast('chat', "Arrow from (" + player.x + "," + player.y + ") to (" + player.mouse.x + ", " + player.mouse.y + ")");
+}
+//______________________________________________________________________________
+global.Consumable = require('./client/js/classes/Consumable.js').server;
+//---Useables-------------------------------------------------------------------
+let bandage = new Consumable({name: 'bandage', self: true});
+bandage.use = (p, slot)=>{
+  p.inventory.remove('hotbar', slot, 1);
+  p.heal(5);
+}
+
+let arrow = new Consumable({name: 'arrow', self: false});
+arrow.use = (p, slot)=>{
+  p.inventory.remove('any', 'arrow', 1);
+}
+//______________________________________________________________________________
 const ItemProxy = require('./client/js/classes/Item.js');
 const {server: Item} = ItemProxy;
 const WallProxy = require('./client/js/classes/Wall.js');
 const {server: Wall} = WallProxy;
+const ProjectileProxy = require('./client/js/classes/Projectile.js');
+const {server: Projectile} = ProjectileProxy;
 
 function copyDefaultPkt(){
   return JSON.parse(JSON.stringify(defaultPack));
@@ -65,7 +100,7 @@ const db = new loki('data.db',{autosave: true, autoload: true, autoloadCallback:
 //______________________________________________________________________________
 
 //---Register Connection Tracking-----------------------------------------------
-const defaultPack = {Player: {}, Item: {}, Wall: {}};
+const defaultPack = {Player: {}, Item: {}, Wall: {}, Projectile: {}};
 global.updatePack = copyDefaultPkt();
 global.initPack = copyDefaultPkt();
 global.removePack = copyDefaultPkt();
@@ -107,6 +142,7 @@ io.on('connection',(socket)=>{
     init.Player = Player.getInit();
     init.Item = Item.getInit();
     init.Wall = Wall.getInit();
+    init.Projectile = Projectile.getInit();
     console.log("Hello", init);
     socket.emit('init',{initPkt: init,playerId: socket.id});
     socket.on('disconnect',()=>{
@@ -114,8 +150,14 @@ io.on('connection',(socket)=>{
       Player.list[socket.id].remove();
     })
 
-    socket.on('click', (e)=>{
+    socket.on('mousedown', (e)=>{
       console.log("Click at (" + e.x + "," + e.y + ") on the " + ["Left","Middle","Right"][e.button] + " button.");
+      Player.list[socket.id].mouse = {button: e.button + 1, x: Number(e.x), y: Number(e.y)};
+      Player.list[socket.id].mouseThisTick = e.button + 1;
+    })
+
+    socket.on('mouseup', (e)=>{
+      Player.list[socket.id].mouse = 0;
     })
 
     socket.on('key', (keys)=>{
@@ -159,11 +201,16 @@ let MAIN_LOOP = setInterval(()=>{
 
   Item.update();
 
+  Projectile.update();
+
   updatePack.Player = Player.getUpdate();
 
   updatePack.Item = Item.getUpdate();
 
   updatePack.Wall = Wall.getUpdate();
+
+  updatePack.Projectile = Projectile.getUpdate();
+
   // console.log(initPack);
   for(let id in Player.list){
     Player.list[id].socket.emit('init-pkt',initPack);
