@@ -111,7 +111,14 @@ let server = class extends EntityProxy.server {
 
       if(this.mouseThisTick == 1){
         let tool = global.Tool.get(this.inventory.selected.item);
-        if (tool) tool.use(this);
+        if (tool) {
+          tool.use(this);
+        } else {
+          let deco = this.collision(this.x, this.y, false, 'Tree') || this.collision(this.x, this.y, false, 'Rock');
+          if (deco){
+            deco.damage(1, this);
+          }
+        }
       }
 
       if(this.mouseThisTick == 3){

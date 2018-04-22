@@ -11,6 +11,10 @@ let client = class extends Image {
     this.speed = speed;
     this.path = src;
     this.loaded = false;
+    this.offScreenC = document.createElement('canvas');
+    this.offScreenC.width = this.w;
+    this.offScreenC.height = this.h;
+    this.offScreen = this.offScreenC.getContext('2d');
   }
 
   load(to, indicator){
@@ -37,6 +41,11 @@ let client = class extends Image {
   update(){
     this.index ++;
     this.index = this.index>=this.frames?0:this.index;
+    this.offScreen.drawImage(this, this.index * this.width, 0, this.w, this.h, 0, 0, w, h);
+  }
+
+  get image(){
+    return this.offScreen.toDataURL();
   }
 
   draw(canvas, {x,y,w,h,rot}){

@@ -25,6 +25,8 @@ const WallProxy = require('./classes/Wall.js');
 const {client: Wall} = WallProxy;
 const ProjectileProxy = require('./classes/Projectile.js');
 const {client: Projectile} = ProjectileProxy;
+const DecorationProxy = require('./classes/Decoration.js');
+const {client: Decoration} = DecorationProxy;
 
 //const KeyMap = require('./classes/KeyMap.js');
 window.KEYS = {};
@@ -35,7 +37,8 @@ window.getClassLists = ()=>{
     Player: Player.list,
     Item: Item.list,
     Wall: Wall.list,
-    Projectile: Projectile.list
+    Projectile: Projectile.list,
+    Decoration: Decoration.list
   }
 }
 
@@ -68,6 +71,17 @@ $(()=>{
   Sprites.add(new Sprite({ctx, src: '/img/arrow.png', name: 'proj_arrow', w: 32, h: 8}));
   Sprites.add(new Sprite({ctx, src: '/img/arrowItem.png', name: 'item_arrow', w: 64, h: 64}));
   Sprites.add(new Sprite({ctx, src: '/img/bandage.png', name: 'item_bandage', w: 64, h: 64}));
+  Sprites.add(new Sprite({ctx, src: '/img/level_0.png', name: 'level_0', w: 798, h: 798}));
+  Sprites.add(new Sprite({ctx, src: '/img/decoration_tree_0.png', w: 32, h: 32}));
+  Sprites.add(new Sprite({ctx, src: '/img/decoration_tree_1.png', w: 32, h: 32}));
+  Sprites.add(new Sprite({ctx, src: '/img/decoration_tree_2.png', w: 32, h: 32}));
+  Sprites.add(new Sprite({ctx, src: '/img/decoration_tree_3.png', w: 32, h: 32}));
+  Sprites.add(new Sprite({ctx, src: '/img/decoration_rock_0.png', w: 32, h: 32}));
+  Sprites.add(new Sprite({ctx, src: '/img/decoration_rock_1.png', w: 32, h: 32}));
+  Sprites.add(new Sprite({ctx, src: '/img/decoration_rock_2.png', w: 32, h: 32}));
+  Sprites.add(new Sprite({ctx, src: '/img/decoration_rock_3.png', w: 32, h: 32}));
+  Sprites.add(new Sprite({ctx, src: '/img/wood.png', name: 'item_wood', w: 64, h: 64}));
+  Sprites.add(new Sprite({ctx, src: '/img/stone.png', name: 'item_stone', w: 64, h: 64}));
 
 
   const Loader = new LoaderList([Sprites]);
@@ -201,6 +215,10 @@ $(()=>{
       new Projectile(initInfo.initPkt.Projectile[pId]);
     }
 
+    for(let dId in initInfo.initPkt.Decoration){
+      new Decoration(initInfo.initPkt.Decoration[dId]);
+    }
+
     socket.on('update',(pkt)=>{
       updatePkt(pkt);
     })
@@ -276,6 +294,11 @@ $(()=>{
       let proj = Projectile.list[id];
       proj.update(pkt.Projectile[id]);
     }
+    // Decoration.visible = [];
+    // for (let id in pkt.Decoration){
+    //   let deco = Decoration.list[id];
+    //   deco.update(pkt.Decoration[id]);
+    // }
 
 
   }
@@ -302,6 +325,11 @@ $(()=>{
       let proj = new Projectile(pkt.Projectile[id]);
       console.log('New Projectile');
     }
+
+    for (let id in pkt.Decoration){
+      let deco = new Decoration(pkt.Decoration[id]);
+      console.log("New Deco");
+    }
   }
 
   function removePkt(pkt){
@@ -324,17 +352,20 @@ $(()=>{
     for (let id of pkt.Projectile){
       Projectile.list[id].remove();
     }
+
+    for (let id of pkt.Decoration){
+      Decoration.list[id].remove();
+    }
   }
 //______________________________________________________________________________
 
 //---Render Loop----------------------------------------------------------------
   let renderLoop = ()=>{
-
-
     canvas.clear();
     let player = Player.list[PlayerId];
     canvas.camera.setPos(player.x + player.w/2,player.y + player.h/2);
     canvas.update();
+    canvas.background(Sprites.get('level_'+player.world));
     canvas.colour('black');
     canvas.lineWidth(2);
     canvas.ctx.beginPath();
@@ -343,6 +374,11 @@ $(()=>{
     canvas.ctx.moveTo(0,-10);
     canvas.ctx.lineTo(0,10);
     canvas.ctx.stroke();
+    //
+    // for (let d of Decoration.visible){
+    //   //let d = Decoration.list[dId];
+    //   d.render(canvas);
+    // }
 
     for (let iId in Item.list){
       Item.list[iId].render(canvas);

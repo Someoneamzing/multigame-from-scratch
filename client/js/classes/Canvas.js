@@ -97,6 +97,24 @@ let client = class {
       this.minimap.reset();
     }
   }
+
+  background(image){
+    let {x, y} = this.camera;
+    const {w :a, h: b} = image;
+    const {width: w, height: h} = this;
+    x = x - w;
+    y = y - h;
+    let C = [{n: (x - (x%a))/a, m: (y - (y%b))/b},{n: ((x+w) - ((x+w)%a))/a + 2, m: (y - (y%b))/b},{n: (x - (x%a))/a, m: ((y+h) - ((y+h)%b))/b + 2}];
+    let imax = C[1].n - C[0].n;
+    let jmax = C[2].m - C[0].m;
+    //console.log(imax, jmax);
+    for (let i = 0; i <= imax; i++){
+      for (let j = 0; j <= jmax; j++){
+        image.drawCenter(this, {x: (C[0].n + i) * a, y: (C[0].m + j) * b, w: a, h: b});
+        //image.drawCenter(this.minimap, {x: (C[0].n + i) * a, y: (C[0].m + j) * b, w: a, h: b});
+      }
+    }
+  }
 }
 
 module.exports = {client};

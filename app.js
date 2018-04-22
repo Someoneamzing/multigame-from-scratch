@@ -49,10 +49,15 @@ arrow.use = (p, slot)=>{
 //______________________________________________________________________________
 const ItemProxy = require('./client/js/classes/Item.js');
 const {server: Item} = ItemProxy;
+global.Item = Item;
 const WallProxy = require('./client/js/classes/Wall.js');
 const {server: Wall} = WallProxy;
 const ProjectileProxy = require('./client/js/classes/Projectile.js');
 const {server: Projectile} = ProjectileProxy;
+const DecorationProxy = require('./client/js/classes/Decoration.js');
+const {server: Decoration} = DecorationProxy;
+const Tree = require('./client/js/classes/Tree.js').server;
+const Rock = require('./client/js/classes/Rock.js').server;
 
 function copyDefaultPkt(){
   return JSON.parse(JSON.stringify(defaultPack));
@@ -100,7 +105,7 @@ const db = new loki('data.db',{autosave: true, autoload: true, autoloadCallback:
 //______________________________________________________________________________
 
 //---Register Connection Tracking-----------------------------------------------
-const defaultPack = {Player: {}, Item: {}, Wall: {}, Projectile: {}};
+const defaultPack = {Player: {}, Item: {}, Wall: {}, Projectile: {}, Decoration: {}};
 global.updatePack = copyDefaultPkt();
 global.initPack = copyDefaultPkt();
 global.removePack = copyDefaultPkt();
@@ -143,6 +148,7 @@ io.on('connection',(socket)=>{
     init.Item = Item.getInit();
     init.Wall = Wall.getInit();
     init.Projectile = Projectile.getInit();
+    init.Decoration = Decoration.getInit();
     console.log("Hello", init);
     socket.emit('init',{initPkt: init,playerId: socket.id});
     socket.on('disconnect',()=>{

@@ -52,6 +52,7 @@ let server = class extends TrackableProxy.server {
     this.vsp = 0;
     this.solid = solid;
 
+
     server.list[this.id] = this;
     console.log(super.type);
   }
