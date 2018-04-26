@@ -62,15 +62,16 @@ let server = class extends TrackableProxy.server {
   }
 
   collision(x,y,onlySolid,type){
-    for (let objName in server.list){
+
+    for (let objName in CollisionTree.retrieve(this)){
       let obj = server.list[objName];
+      if (!obj) continue;
       if (obj.id == this.id) continue;
       if (typeof type != 'undefined' && !obj.type.includes(type)) continue;
       if (onlySolid&&!obj.solid) continue;
       //if (this.dist(obj,x,y)>(Math.pow(this.w/2,2)+Math.pow(this.h/2,2))) continue;
       if (x - this.w/2 > obj.x + obj.w/2 || x + this.w/2 < obj.x - obj.w/2) continue;
       if (y - this.h/2 > obj.y + obj.h/2 || y + this.h/2 < obj.y - obj.h/2) continue;
-      //console.log("Collision!!!");
       return obj;
     }
     return false;
@@ -125,6 +126,13 @@ let server = class extends TrackableProxy.server {
     let inst = super.type;
     inst.push(server.trackName);
     return inst;
+  }
+
+  static registerCollidables(){
+    CollisionTree.clear();
+    for (let i in server.list){
+      CollisionTree.insert(server.list[i]);
+    }
   }
 }
 

@@ -203,6 +203,11 @@ let server = class extends EntityProxy.server {
     return inst;
   }
 
+  render(ctx){
+    ctx.fillStyle = '#00ff00';
+    ctx.fillRect(this.x - this.w/2, this.y - this.h/2, this.w, this.h);
+  }
+
   static getUpdate(){
     let pkt = {};
     for (let objId in server.list){

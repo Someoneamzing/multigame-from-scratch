@@ -1,5 +1,5 @@
 let uuid;
-if(typeof this !== 'undefined' && typeof module !== 'undefined' && this.module !== module){
+if(side == 'SERVER'){
   uuid = require('uuid/v4');
 }
 

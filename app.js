@@ -1,10 +1,67 @@
-const $ = require('jquery');
+//---DO NOT CHANGE--------------------------------------------------------------
+Object.defineProperty(window, 'side', {value: "SERVER", writeable: false});
+//______________________________________________________________________________
+
+
+const electron = require('electron');
+const EventEmitter = require('events');
+const remote = electron.remote;
+const Eapp = remote.app;
+
+window.basepath = (Eapp.getAppPath)();
+console.log(basepath);
+window.$ = require('jquery');
+
+//require('bootstrap');
+
+window.InternalConsole = new (class extends EventEmitter {
+  constructor(){
+    super();
+    this.list = [];
+  }
+
+  addEntry(entry){
+    this.list.push(entry);
+    this.emit('change');
+  }
+})();
+
+window.renders = new (class {
+  constructor(){
+
+  }
+
+  players(ctx){
+    for (let id in Player.list){
+      Player.list[id].render(ctx);
+    }
+  }
+})()
+
+window.CollisionTree = new (require('./client/js/classes/QuadTree.js').server)()
+
+for (let verb of ['log', 'warn', 'error']){
+  console[verb] = ((method, verb)=>{
+    return (...text)=>{
+      method.apply(console, text);
+      if (verb !="log") console.log(verb);
+      for (let msg of text) window.InternalConsole.addEntry({verb, text: msg, time: new Date(), salt: Math.random()})
+
+    }
+  })(console[verb].bind(console), verb);
+}
+
 const uuid = require('uuid/v4');
+const path = require('path');
 const loki = require('lokijs');
 const CONFIG = require('./config.js');
 const express = require('express');
 const Socket = require('socket.io');
 const httpModule = require('http');
+const React = require('react');
+const ReactDOM = require('react-dom');
+
+//const AppPage = require('./server/components/AppPage.js');
 
 // const ConnectionProxy = require('./client/js/classes/Connection.js');
 // const {server: Connection} = ConnectionProxy;
@@ -59,6 +116,26 @@ const {server: Decoration} = DecorationProxy;
 const Tree = require('./client/js/classes/Tree.js').server;
 const Rock = require('./client/js/classes/Rock.js').server;
 
+window.listCounts = new (class {
+  constructor(){
+
+  }
+
+  get Item(){
+    return Object.keys(Item.list).length;
+  }
+
+  get Player(){
+    return Object.keys(Player.list).length;
+  }
+
+  get Projectile(){
+    return Object.keys(Projectile.list).length;
+  }
+})()
+
+const AppPage = require('./server/components/AppPage.js');
+
 function copyDefaultPkt(){
   return JSON.parse(JSON.stringify(defaultPack));
 }
@@ -71,19 +148,19 @@ const io = Socket(http);
 
 //---Handle Requests------------------------------------------------------------
 app.get('/', (req, res)=>{
-  res.sendFile(__dirname + "/client/index.html")
+  res.sendFile(basepath + "/client/index.html")
 })
 
 app.get('/jquery', (req,res)=>{
-  res.sendFile(__dirname + '/node_modules/jquery/dist/jquery.min.js')
+  res.sendFile(basepath + '/node_modules/jquery/dist/jquery.min.js')
 })
 
 app.get('/bootstrapjs', (req,res)=>{
-  res.sendFile(__dirname + "/node_modules/bootstrap/dist/js/bootstrap.min.js")
+  res.sendFile(basepath + "/node_modules/bootstrap/dist/js/bootstrap.min.js")
 })
 
 app.get('/bootstrapcss', (req,res)=>{
-  res.sendFile(__dirname + "/node_modules/bootstrap/dist/css/bootstrap.min.css")
+  res.sendFile(basepath + "/node_modules/bootstrap/dist/css/bootstrap.min.css")
 })
 
 
@@ -196,12 +273,22 @@ io.on('connection',(socket)=>{
 http.listen(CONFIG.port, ()=>{
   console.log('Server Started on port ' + CONFIG.port + '.');
 })
+
+window.serverEval = (str)=>{
+  try {
+    console.log(eval(str));
+  } catch(err) {
+    console.log(err.message,err);
+  }
+}
 //______________________________________________________________________________
 
 //---Start Main Loop------------------------------------------------------------
 //let checker = new Entity({});
 
 let MAIN_LOOP = setInterval(()=>{
+  Entity.registerCollidables();
+
   updatePack = copyDefaultPkt();
   Player.update();
 
@@ -230,3 +317,13 @@ let MAIN_LOOP = setInterval(()=>{
 },1000/30)
 
 //______________________________________________________________________________
+$(()=>{
+  let reactApp = document.getElementById('app');
+  console.log(reactApp);
+  ReactDOM.render(<AppPage />, reactApp);
+  // function render() {
+  //
+  //   requestAnimationFrame(render);
+  // }
+  // requestAnimationFrame(render);
+})

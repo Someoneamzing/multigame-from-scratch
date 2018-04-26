@@ -1,3 +1,8 @@
+//---DO NOT CHANGE--------------------------------------------------------------
+Object.defineProperty(window, 'side', {value: "CLIENT", writeable: false});
+//______________________________________________________________________________
+
+
 console.log('Connected to server at ' + location.hostname + ' on port ' + location.port + '.');
 
 // const ConnectionProxy = require('./classes/Connection.js');
@@ -374,11 +379,11 @@ $(()=>{
     canvas.ctx.moveTo(0,-10);
     canvas.ctx.lineTo(0,10);
     canvas.ctx.stroke();
-    //
-    // for (let d of Decoration.visible){
-    //   //let d = Decoration.list[dId];
-    //   d.render(canvas);
-    // }
+
+    for (let dId in Decoration.list){
+      let d = Decoration.list[dId];
+      d.render(canvas);
+    }
 
     for (let iId in Item.list){
       Item.list[iId].render(canvas);

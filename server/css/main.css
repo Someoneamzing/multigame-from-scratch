@@ -1,0 +1,101 @@
+.console-info {
+  background: rgba(0,100,255,0.1);
+  border-top: 1px solid rgba(0,100,255,0.3);
+  padding: 5px;
+  margin-left: -20px;
+}
+
+.console-danger {
+  background: rgba(255,0,0,0.3);
+  border-top: 1px solid rgba(255,0,0,0.3);
+  padding: 5px;
+  padding-left: 15px;
+  margin-left: -20px;
+}
+
+.console-warning {
+  background: rgba(100,100,0,0.3);
+  border-top: 1px solid rgba(100,100,0,0.3);
+  padding: 5px;
+  margin-left: -20px;
+}
+
+.console-window {
+  padding: 10px;
+  padding-right: 0;
+  margin-right: -5px;
+  height: calc(100vh - 37px);
+}
+
+.console-window .card {
+  height: 100%;
+}
+
+.console-window .card-body {
+  overflow-y: scroll;
+  position: relative;
+  padding-bottom: 0;
+}
+
+.console-output {
+  position: absolute;
+  bottom: 0;
+  margin: 0;
+  padding: 0;
+  width: calc(100% - 20px);
+}
+
+.app-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.list-col {
+  border-left: 1px solid lightgrey;
+}
+
+.console-input {
+  width: 100%;
+}
+
+.console-input input {
+  width: calc(100% - 52px);
+}
+
+.tab-list {
+  list-style: none;
+  margin: 0;
+  margin-right: -15px;
+  padding: 0;
+  padding-left: 15px;
+  border-bottom: 1px solid lightgrey;
+}
+
+.tab-list li {
+  display: inline-block;
+  padding: 5px;
+  background-color: #dddddd;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  border: 1px solid lightgrey;
+  margin-left: -5px;
+  margin-bottom: -1px;
+  position: relative;
+}
+
+.tab-list li.active {
+  z-index: 2;
+  background-color: white;
+  border-bottom: 1px white solid;
+}
+
+.game-view-size {
+  width: calc(100% - 15px);
+  margin: 15px;
+  padding: 0;
+  height: calc(100vh - 65px);
+  border-radius: 5px;
+  border: 1px solid lightgrey;
+}
