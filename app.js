@@ -40,16 +40,25 @@ window.renders = new (class {
 
 window.CollisionTree = new (require('./client/js/classes/QuadTree.js').server)()
 
-for (let verb of ['log', 'warn', 'error']){
-  console[verb] = ((method, verb)=>{
-    return (...text)=>{
-      method.apply(console, text);
-      if (verb !="log") console.log(verb);
-      for (let msg of text) window.InternalConsole.addEntry({verb, text: msg, time: new Date(), salt: Math.random()})
-
-    }
-  })(console[verb].bind(console), verb);
+function findCornersTest(obj1, obj){
+  //let res = [];
+  let {x,y,w,h} = obj1;
+  if ((x > obj.x + obj.w/2 )|| (x + w < obj.x - obj.w/2)) {console.log('False'); return;}
+  if ((y > obj.y + obj.h/2) || (y + h < obj.y - obj.h/2)) {console.log('False'); return;}
+  console.log('True');
+  //return res;
 }
+
+// for (let verb of ['log', 'warn', 'error']){
+//   console[verb] = ((method, verb)=>{
+//     return (...text)=>{
+//       method.apply(console, text);
+//       if (verb !="log") console.log(verb);
+//       for (let msg of text) window.InternalConsole.addEntry({verb, text: msg, time: new Date(), salt: Math.random()})
+//
+//     }
+//   })(console[verb].bind(console), verb);
+// }
 
 const uuid = require('uuid/v4');
 const path = require('path');
@@ -115,6 +124,7 @@ const DecorationProxy = require('./client/js/classes/Decoration.js');
 const {server: Decoration} = DecorationProxy;
 const Tree = require('./client/js/classes/Tree.js').server;
 const Rock = require('./client/js/classes/Rock.js').server;
+const QuadTree = require('./client/js/classes/QuadTree.js').server;
 
 window.listCounts = new (class {
   constructor(){
@@ -273,7 +283,7 @@ io.on('connection',(socket)=>{
 http.listen(CONFIG.port, ()=>{
   console.log('Server Started on port ' + CONFIG.port + '.');
 })
-
+let store = {};
 window.serverEval = (str)=>{
   try {
     console.log(eval(str));
@@ -287,6 +297,7 @@ window.serverEval = (str)=>{
 //let checker = new Entity({});
 
 let MAIN_LOOP = setInterval(()=>{
+  CollisionTree.clear();
   Entity.registerCollidables();
 
   updatePack = copyDefaultPkt();

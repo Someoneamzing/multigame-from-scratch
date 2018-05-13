@@ -54,7 +54,7 @@ let server = class extends TrackableProxy.server {
 
 
     server.list[this.id] = this;
-    console.log(super.type);
+    //console.log(super.type);
   }
 
   dist(obj,x = this.x,y = this.y){
@@ -129,7 +129,7 @@ let server = class extends TrackableProxy.server {
   }
 
   static registerCollidables(){
-    CollisionTree.clear();
+    //CollisionTree.clear();
     for (let i in server.list){
       CollisionTree.insert(server.list[i]);
     }

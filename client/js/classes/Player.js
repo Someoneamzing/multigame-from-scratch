@@ -109,6 +109,16 @@ let server = class extends EntityProxy.server {
       this.hsp = (Number(Boolean(this.keys["D"])||Boolean(this.keys["ARROWRIGHT"]))-Number(Boolean(this.keys["A"])||Boolean(this.keys["ARROWLEFT"])))*this.moveSpeed;
       this.vsp = (Number(Boolean(this.keys["S"])||Boolean(this.keys["ARROWDOWN"]))-Number(Boolean(this.keys["W"])||Boolean(this.keys["ARROWUP"])))*this.moveSpeed;
 
+      let item = this.collision(this.x,this.y,false,"Item");
+      if(item != false && item.delay <= 0){
+        let picked = this.inventory.add(item.item, item.count);
+        item.count = Math.max(item.count - picked, 0);
+        if (item.count <= 0){
+          item.remove();
+        }
+        item = null;
+      }
+
       if(this.mouseThisTick == 1){
         let tool = global.Tool.get(this.inventory.selected.item);
         if (tool) {

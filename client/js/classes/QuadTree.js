@@ -1,7 +1,7 @@
 const QuadNode = require('./QuadNode.js').server;
 
 class server {
-  constructor(maxChildren = 10, maxDepth = 5) {
+  constructor(maxChildren = 10, maxDepth = 10) {
     this.maxChildren = maxChildren;
     this.maxDepth = maxDepth;
     this.root = new QuadNode({x:-5000, y: -5000, w: 10000, h: 10000}, this.maxChildren, 0, this.maxDepth);

@@ -10,6 +10,9 @@ console.log('Connected to server at ' + location.hostname + ' on port ' + locati
 // import React from 'react';
 // import ReactDOM from 'react-dom';
 
+import React from '../../node_modules/react/umd/react.development.js';
+import ReactDOM from '../../node_modules/react-dom/umd/react-dom.development.js';
+
 const SpriteProxy = require('./classes/Sprite.js');
 const {client: Sprite} = SpriteProxy;
 const SpriteListProxy = require('./classes/SpriteList.js');
@@ -32,6 +35,8 @@ const ProjectileProxy = require('./classes/Projectile.js');
 const {client: Projectile} = ProjectileProxy;
 const DecorationProxy = require('./classes/Decoration.js');
 const {client: Decoration} = DecorationProxy;
+const InventoryGuiProxy = require('./classes/InventoryGui.js');
+const {client: InventoryGui} = InventoryGuiProxy;
 
 //const KeyMap = require('./classes/KeyMap.js');
 window.KEYS = {};
@@ -490,9 +495,19 @@ $(()=>{
         $('#chat-input').val("");
         $('#death-screen').show();
         break;
+
+      case 'inventory':
+        $('#chat-pane').hide();
+        $('#chat-input').blur();
+        $('#chat-input').val("");
+        $('#inventory-screen').show();
+        break;
     }
     GAME.screen = newScreen;
   }
+
+  // 
+  // ReactDOM.render(<InventoryGui />, document.getElementById('inventory-screen'));
 //______________________________________________________________________________
 
 //---Event Listiners------------------------------------------------------------

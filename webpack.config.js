@@ -5,10 +5,10 @@ let nodeExternals = require('webpack-node-externals')
 
 
 //'babel-polyfill': 'babel-polyfill',
-module.exports = {
+module.exports = [{
   target: 'electron-renderer',
   externals: [nodeExternals({whitelist:['uuid/v4']})],
-  entry: {'./client/compile/bundle':'./client/js/main.js', './server_bundle': './app.js'},
+  entry: {'./server_bundle': './app.js'},
   output: {path: __dirname, filename: '[name].js'},
   mode: 'development',
 
@@ -17,6 +17,7 @@ module.exports = {
     rules: [
       {
         loader: 'babel-loader',
+
         exclude: /node_modules/,
         query: {
           plugins: [
@@ -28,4 +29,25 @@ module.exports = {
     ]
   },
   plugins: [new WebpackNotifierPlugin({alwaysNotify: true})]
-};
+},{
+  target: 'web',
+  entry: {'./client/compile/bundle':'./client/js/main.js'},
+  output: {path: __dirname, filename: '[name].js'},
+  mode: 'development',
+
+  module: {
+    rules: [
+      {
+        loader: 'babel-loader',
+        exclude: /node_modules/,
+        query: {
+          plugins: [
+            ['babel-plugin-transform-builtin-extend', {globals: ['Image']}]
+          ],
+          presets: ['react']
+        }
+      }
+    ]
+  },
+  plugins: [new WebpackNotifierPlugin({alwaysNotify: true})]
+}];

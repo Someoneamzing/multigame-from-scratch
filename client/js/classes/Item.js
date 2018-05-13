@@ -61,13 +61,13 @@ let server = class extends EntityProxy.server {
   }
 
   update(){
-    let p = this.collision(this.x,this.y,false,'Player');
-    if (this.delay <= 0 && p && !p.dead){
-      let added = p.inventory.add(this.item, this.count, 'any');
-      this.count -= added;
-      console.log(added, this.count);
-      if (this.count <= 0) this.remove();
-    }
+    // let p = this.collision(this.x,this.y,false,'Player');
+    // if (this.delay <= 0 && p && !p.dead){
+    //   let added = p.inventory.add(this.item, this.count, 'any');
+    //   this.count -= added;
+    //   console.log(added, this.count);
+    //   if (this.count <= 0) this.remove();
+    // }
     this.delay = Math.max(this.delay - 1, 0);
     super.update();
   }

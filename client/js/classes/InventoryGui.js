@@ -1,17 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-class client extends React.Component {
+export class client extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {selectedSlot: 0, selectedRecipe: 0, list: null, id = null, error: {has: false, msg: ''}, iSearch: '', rSearch: ''};
+    this.state = {selectedSlot: 0, selectedRecipe: 0, list: null, id: null, error: {has: false, msg: ''}, iSearch: '', rSearch: ''};
   }
 
-  handleInventorySearch(e)=>{
+  handleInventorySearch(e){
     this.setState({iSearch: e.target.value});
   }
 
-  handleRecipeSearch(e)=>{
+  handleRecipeSearch(e){
     this.setState({rSearch: e.target.value});
   }
 
@@ -45,7 +45,7 @@ class client extends React.Component {
         <div>
           <div><h3>{title}</h3></div>
           <table>
-            <thead><tr><th><input type="text" placeholder="Search"></th><th></th><th>Crafting</th><th><input type="text" placeholder="Search"></th></tr></thead>
+            <thead><tr><th><input type="text" placeholder="Search" onChange={this.handleInventorySearch.bind(this)} /></th><th></th><th>Crafting</th><th><input type="text" placeholder="Search" onChange={this.handleRecipeSearch.bind(this)} /></th></tr></thead>
             <tbody>
               <tr>
                 <td><ul>{this.state.list.list[this.state.inventoryId].list.map((item, slot)=>{return (<li key={slot} className='i-list-item'>{global.toLocale('item.' + item.item)}</li>)})}</ul></td>
@@ -55,7 +55,7 @@ class client extends React.Component {
 
                 </td>
                 <td>
-                  
+
                 </td>
               </tr>
             </tbody>
